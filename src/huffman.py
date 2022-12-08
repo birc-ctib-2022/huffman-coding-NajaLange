@@ -73,9 +73,16 @@ def encoding(x: str) -> Tree:
         # Remember that heap.pop() and heap.append() are
         # list operations, but you need to use the hq.heappop()
         # or hq.heappush() functions.
-        ...
+
+        newnode = Node(heap[0].count+heap[1].count ,heap[0], heap[1])
+        hq.heappop(heap)
+        hq.heappop(heap)
+        hq.heappush(heap, newnode)
 
     return heap.pop()
+
+tree1 = encoding("123")
+print(tree1)
 
 
 def build_encoding_table(tree: Tree,
@@ -94,11 +101,13 @@ def build_encoding_table(tree: Tree,
     # large trees in an application like this.
     res = res if res is not None else {}
     if isinstance(tree, Leaf):
-        ...
+        res[tree.letter] = "".join(bits)
     else:
-        ...
+        build_encoding_table(tree.left, (bits + ("0", )), res)
+        build_encoding_table(tree.right, (bits + ("1", )), res)
     return res
 
+print(build_encoding_table(tree1))
 
 class BitIterator:
     """
@@ -150,7 +159,16 @@ def decode(x: bits, enc: Encoding) -> str:
             # bit, you can do that with `b = next(bits)`, and
             # then you move the node to the left or right child
             # based on the bit.
-            ...
+            
+            if isinstance(node, Leaf):
+                decoding.append(node.letter)
+                node = enc.tree
+            else: 
+                b = next(bits)
+                if b == "0":
+                    node = node.left
+                else: 
+                    node = node.right
 
     except StopIteration:
         # When we asked for a bit that wasn't there, we end
@@ -179,3 +197,8 @@ class Encoding:
     def decode(self, x: bits) -> str:
         """Decode x according to this encoding."""
         return decode(x, self)
+
+tree = Encoding("123")
+print(tree)
+print(tree.encode("123"))
+print(decode(tree.encode("123"), Encoding("123")))
